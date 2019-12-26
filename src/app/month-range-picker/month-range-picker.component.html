@@ -1,0 +1,19 @@
+<div class="date_picker">
+  <div class="month_and_years">
+    <button (click)="previousMonth()"><</button>
+    <div>
+        {{ date | date:'MMMM'}} {{ date | date:'y'}}
+  </div>
+  <button (click)="nextMonth()">></button>
+</div>
+<div class="week_days">
+  <div class="day" *ngFor="let day of weekDays">
+    {{day|slice:0:3}}
+  </div>
+</div>
+<div class="week">
+  <div [ngClass]="{'offset': week === null, 'day': week !== null }" [attr.day]="week" #weekday *ngFor="let week of currentMonthDates">
+    {{week | date:'d'}}
+  </div>
+</div>
+</div>

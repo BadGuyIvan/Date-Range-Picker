@@ -1,0 +1,51 @@
+.date_picker {
+    min-width: 400px;
+    max-width: 400px;
+    .month_and_years {
+        display: flex;
+        justify-content: space-between;
+    }
+    .week_days {
+        display: flex;
+        justify-content: center;
+        margin-left: 25px;
+        margin-right: 25px;
+        .day {
+            text-align: center;
+            min-width: 30px;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+    }
+    
+    .week {
+        display: flex;
+        flex-wrap: wrap;
+        margin-left: 25px;
+        margin-right: 25px;
+        .day, .offset {
+            min-width: 30px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            border: 1px solid white;
+            margin: -1px;
+        }
+        .selected {
+            background-color: #3CAEA3;
+            color: white;
+            border: 1px solid white;
+            margin: -1px;
+        }
+        .start, .end {
+            background-color: rgb(47, 129, 121);
+            color: white;
+            border: 1px solid white;
+            margin: -1px;
+        }
+    }
+    
+    .month_and_years {
+        display: flex;
+    }
+}
