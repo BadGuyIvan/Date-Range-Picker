@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MonthRangePickerComponent } from './month-range-picker.component';
+import { DateRangePickerComponent } from './date-range-picker.component';
 
 describe('MonthRangePickerComponent', () => {
-  let component: MonthRangePickerComponent;
-  let fixture: ComponentFixture<MonthRangePickerComponent>;
+  let component: DateRangePickerComponent;
+  let fixture: ComponentFixture<DateRangePickerComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ MonthRangePickerComponent ]
+      declarations: [ DateRangePickerComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(MonthRangePickerComponent);
+    fixture = TestBed.createComponent(DateRangePickerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

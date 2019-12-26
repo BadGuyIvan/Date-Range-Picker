@@ -5,11 +5,11 @@ import { take, scan, repeat } from 'rxjs/operators';
 import { fromEvent, merge, Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-month-range-picker',
-  templateUrl: './month-range-picker.component.html',
-  styleUrls: ['./month-range-picker.component.scss'],
+  selector: 'app-date-range-picker',
+  templateUrl: './date-range-picker.component.html',
+  styleUrls: ['./date-range-picker.component.scss'],
 })
-export class MonthRangePickerComponent implements OnInit, AfterViewInit, OnDestroy {
+export class DateRangePickerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(private element: ElementRef, private renderer: Renderer2) { }
 
