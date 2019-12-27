@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, ViewChildren, QueryList, ElementRef, Renderer2, OnDestroy } from '@angular/core';
 import * as moment from "moment";
-import { chunck } from '../shared/chunck';
+import { chunk } from '../shared/chunk';
 import { take, scan, repeat } from 'rxjs/operators';
 import { fromEvent, merge, Subscription } from 'rxjs';
 
