@@ -12,7 +12,7 @@
   </div>
 </div>
 <div class="week">
-  <div [ngClass]="{'offset': week === null, 'day': week !== null }" [attr.day]="week" #weekday *ngFor="let week of currentMonthDates">
+  <div [ngClass]="{'offset': week === null, 'day': week !== null }" [attr.day]="week|date" #weekday *ngFor="let week of currentMonthDates">
     {{week | date:'d'}}
   </div>
 </div>

@@ -31,11 +31,20 @@
             border: 1px solid white;
             margin: -1px;
         }
+        .day {
+            &:hover {
+                background-color: #3aa096;
+                color: #ffffff;
+            }
+        }
         .selected {
             background-color: #3CAEA3;
             color: white;
             border: 1px solid white;
             margin: -1px;
+        }
+        .offset {
+            cursor: default;
         }
         .start, .end {
             background-color: rgb(47, 129, 121);
