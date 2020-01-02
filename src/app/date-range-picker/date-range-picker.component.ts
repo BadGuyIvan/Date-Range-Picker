@@ -16,7 +16,8 @@ import {
   repeat,
   switchMap,
   startWith,
-  takeWhile
+  takeWhile,
+  map
 } from "rxjs/operators";
 import { fromEvent, merge, Subscription } from "rxjs";
 
@@ -27,7 +28,7 @@ import { fromEvent, merge, Subscription } from "rxjs";
 })
 export class DateRangePickerComponent
   implements OnInit, AfterViewInit, OnDestroy {
-  constructor(private element: ElementRef, private renderer: Renderer2) {}
+  constructor(private element: ElementRef, private renderer: Renderer2) { }
 
   @ViewChildren("weekday") days_of_the_month: QueryList<ElementRef>;
 
@@ -81,9 +82,9 @@ export class DateRangePickerComponent
       //calculate days after the last day in the month.
       let days = new Array(
         6 -
-          moment(this.date)
-            .endOf("month")
-            .weekday()
+        moment(this.date)
+          .endOf("month")
+          .weekday()
       ).fill(null);
 
       this.currentMonthDates.push(...days);
@@ -113,42 +114,48 @@ export class DateRangePickerComponent
         scan(
           (item, val) => ({
             count: item.count + 1,
-            targer: val
+            element: val
           }),
           {
             count: 0,
-            targer: null
+            element: null
           }
         ),
         switchMap(event =>
           merge(...mouseEnter).pipe(
             //after the first click, we have to start from this event, that's why we need to use 'startWith'
-            startWith(event.targer),
-            takeWhile(() => event.count !== 2)
-          )
+            startWith({
+              element: [event.element.target], count: event.count
+            }),
+            takeWhile(() => event.count !== 2, true)
+          ),
         ),
-        scan((arr: Array<EventTarget>, prev: MouseEvent) => {
-          if (arr.length !== 2) {
-            arr = arr.concat(prev.target);
+        scan((outerValue: {element: Array<Element>, count: number}, innerValue: any) => {
+          if (outerValue.element.length === 0) {
+            outerValue = innerValue
+            outerValue.element.push(outerValue.element[0])
           } else {
-            arr[1] = prev.target;
+            outerValue.element[1] = innerValue instanceof MouseEvent ? innerValue.target : innerValue.element[0];
+            if (innerValue.count) {
+              outerValue.count = innerValue.count
+            }
           }
-          return arr;
-        }, []),
+          return outerValue
+        }, {
+          element: [],
+          count: 0
+        }),
+        map((item: {element: Array<Element>, count: number}) => {
+          if (new Date(item.element[0].attributes["day"].value).getTime() > new Date(item.element[1].attributes["day"].value).getTime()) {
+            return { ...item, element: [item.element[1], item.element[0]] }
+          }
+          return item
+        }),
         repeat()
       )
       .subscribe(
         event => {
-          let [startDate, endDate] = event.map(
-            (element: Element) => new Date(element.attributes["day"].value)
-          );
-
-          //if a user chooses first day bigger than end day need to swap these two days
-          if (startDate && endDate && startDate.getTime() > endDate.getTime()) {
-            event = [event[1], event[0]];
-          }
-
-          let [index_of_the_first_day, index_of_the_last_day] = event.map(
+          let [index_of_the_first_day, index_of_the_last_day] = event.element.map(
             searchItem => {
               let index = this.days_of_the_month
                 .toArray()
@@ -157,11 +164,13 @@ export class DateRangePickerComponent
             }
           );
 
-          this.days_of_the_month.toArray().forEach(item => {
-            if (/selected/.test(item.nativeElement.classList.value)) {
-              this.renderer.removeClass(item.nativeElement, "selected");
-            }
-          });
+          if (event.count !== 2)
+            this.days_of_the_month.toArray().forEach(item => {
+              if (/selected/.test(item.nativeElement.classList.value)) {
+                this.renderer.removeClass(item.nativeElement, "selected");
+              }
+            });
+
           //adding a class to the range of selected days
           this.days_of_the_month
             .toArray()
