@@ -17,9 +17,9 @@ import {
   switchMap,
   startWith,
   takeWhile,
-  map
+  retry,
 } from "rxjs/operators";
-import { fromEvent, merge, Subscription } from "rxjs";
+import { fromEvent, merge, Subscription, throwError, Observable } from "rxjs";
 
 @Component({
   selector: "app-date-range-picker",
@@ -140,44 +140,54 @@ export class DateRangePickerComponent
               outerValue.count = innerValue.count
             }
           }
+          if (new Date(outerValue.element[0].attributes["day"].value).getTime() > new Date(outerValue.element[1].attributes["day"].value).getTime()) {           
+            return throwError(Error)
+          }
           return outerValue
         }, {
           element: [],
           count: 0
         }),
-        map((item: {element: Array<Element>, count: number}) => {
-          if (new Date(item.element[0].attributes["day"].value).getTime() > new Date(item.element[1].attributes["day"].value).getTime()) {
-            return { ...item, element: [item.element[1], item.element[0]] }
-          }
-          return item
-        }),
+        retry(),
         repeat()
       )
       .subscribe(
         event => {
-          let [index_of_the_first_day, index_of_the_last_day] = event.element.map(
-            searchItem => {
-              let index = this.days_of_the_month
+          //if an event is not undefined
+          if(event){
+            //if an event is not an instance of the Observable
+            if(!(event instanceof Observable)) {
+              let [index_of_the_first_day, index_of_the_last_day] = event.element.map(
+                searchItem => {
+                  let index = this.days_of_the_month
+                    .toArray()
+                    .findIndex(item => item.nativeElement === searchItem);
+                  return index;
+                }
+              );
+    
+              if (event.count !== 2)
+                this.days_of_the_month.toArray().forEach(item => {
+                  if (/selected/.test(item.nativeElement.classList.value)) {
+                    this.renderer.removeClass(item.nativeElement, "selected");
+                  }
+                });
+    
+              //adding a class to the range of selected days
+              this.days_of_the_month
                 .toArray()
-                .findIndex(item => item.nativeElement === searchItem);
-              return index;
+                .slice(index_of_the_first_day, index_of_the_last_day + 1)
+                .forEach(item => {
+                  this.renderer.addClass(item.nativeElement, "selected");
+                });
+            } else {
+              this.days_of_the_month.toArray().forEach(item => {
+                if (/selected/.test(item.nativeElement.classList.value)) {
+                  this.renderer.removeClass(item.nativeElement, "selected");
+                }
+              })
             }
-          );
-
-          if (event.count !== 2)
-            this.days_of_the_month.toArray().forEach(item => {
-              if (/selected/.test(item.nativeElement.classList.value)) {
-                this.renderer.removeClass(item.nativeElement, "selected");
-              }
-            });
-
-          //adding a class to the range of selected days
-          this.days_of_the_month
-            .toArray()
-            .slice(index_of_the_first_day, index_of_the_last_day + 1)
-            .forEach(item => {
-              this.renderer.addClass(item.nativeElement, "selected");
-            });
+          }
         },
         err => console.error(err)
       );
