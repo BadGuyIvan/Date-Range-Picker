@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { first } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +8,10 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'angular-month-range-picker';
+  fistDay: Date;
+  lastDay: Date;
+  selectedDays([firstDay, lastDay]){
+    this.fistDay = new Date(firstDay)
+    this.lastDay = new Date(lastDay)
+  }
 }

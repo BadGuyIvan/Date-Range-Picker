@@ -1,1 +1,7 @@
-<app-date-range-picker></app-date-range-picker>
+<app-date-range-picker (selectedDays)="selectedDays($event)"></app-date-range-picker>
+<div>
+    First day: {{fistDay|date:'shortDate'}}
+</div>
+<div>
+    Last day: {{lastDay|date:'shortDate'}}
+</div>

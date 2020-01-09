@@ -33,7 +33,7 @@
         }
         .day {
             &:hover {
-                background-color: #3aa096;
+                background-color: #2f8179;
                 color: #ffffff;
             }
         }
@@ -42,15 +42,22 @@
             color: white;
             border: 1px solid white;
             margin: -1px;
+
         }
         .offset {
             cursor: default;
         }
         .start, .end {
-            background-color: rgb(47, 129, 121);
+            background-color: #2f8179;
             color: white;
             border: 1px solid white;
             margin: -1px;
+            &:hover {
+                background-color: #369289;
+                color: white;
+                border: 1px solid white;
+                margin: -1px;
+            }
         }
     }
     

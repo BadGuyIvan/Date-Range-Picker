@@ -6,7 +6,9 @@ import {
   QueryList,
   ElementRef,
   Renderer2,
-  OnDestroy
+  OnDestroy,
+  Output,
+  EventEmitter
 } from "@angular/core";
 import * as moment from "moment";
 import { chunk } from "../shared/chunk";
@@ -24,13 +26,16 @@ import { fromEvent, merge, Subscription, throwError, Observable } from "rxjs";
 @Component({
   selector: "app-date-range-picker",
   templateUrl: "./date-range-picker.component.html",
-  styleUrls: ["./date-range-picker.component.scss"]
+  styleUrls: ["./date-range-picker.component.scss"],
 })
 export class DateRangePickerComponent
   implements OnInit, AfterViewInit, OnDestroy {
   constructor(private element: ElementRef, private renderer: Renderer2) { }
 
   @ViewChildren("weekday") days_of_the_month: QueryList<ElementRef>;
+
+  @Output()
+  selectedDays = new EventEmitter()
 
   dayClickSubscription: Subscription;
   viewChangesSubscription: Subscription;
@@ -123,14 +128,14 @@ export class DateRangePickerComponent
         ),
         switchMap(event =>
           merge(...mouseEnter).pipe(
-            //after the first click, we have to start from this event, that's why we need to use 'startWith'
+            //after the first click, we have to start from this "event", that's why we need to use 'startWith'
             startWith({
               element: [event.element.target], count: event.count
             }),
             takeWhile(() => event.count !== 2, true)
           ),
         ),
-        scan((outerValue: {element: Array<Element>, count: number}, innerValue: any) => {
+        scan((outerValue: { element: Array<Element>, count: number }, innerValue: any) => {
           if (outerValue.element.length === 0) {
             outerValue = innerValue
             outerValue.element.push(outerValue.element[0])
@@ -140,7 +145,7 @@ export class DateRangePickerComponent
               outerValue.count = innerValue.count
             }
           }
-          if (new Date(outerValue.element[0].attributes["day"].value).getTime() > new Date(outerValue.element[1].attributes["day"].value).getTime()) {           
+          if (new Date(outerValue.element[0].attributes["day"].value).getTime() > new Date(outerValue.element[1].attributes["day"].value).getTime()) {
             return throwError(Error)
           }
           return outerValue
@@ -154,9 +159,9 @@ export class DateRangePickerComponent
       .subscribe(
         event => {
           //if an event is not undefined
-          if(event){
+          if (event) {
             //if an event is not an instance of the Observable
-            if(!(event instanceof Observable)) {
+            if (!(event instanceof Observable)) {
               let [index_of_the_first_day, index_of_the_last_day] = event.element.map(
                 searchItem => {
                   let index = this.days_of_the_month
@@ -165,26 +170,33 @@ export class DateRangePickerComponent
                   return index;
                 }
               );
-    
+
               if (event.count !== 2)
-                this.days_of_the_month.toArray().forEach(item => {
-                  if (/selected/.test(item.nativeElement.classList.value)) {
-                    this.renderer.removeClass(item.nativeElement, "selected");
-                  }
+                this.days_of_the_month.toArray().forEach((item) => {
+                  this.renderer.removeClass(item.nativeElement, "selected");
+                  this.renderer.removeClass(item.nativeElement, "start");
+                  this.renderer.removeClass(item.nativeElement, "end");
                 });
-    
+
+              if (event.count == 2) {
+                this.selectedDays.emit([new Date(event.element[0].attributes["day"].value).getTime(), new Date(event.element[1].attributes["day"].value).getTime()])
+              }
+
               //adding a class to the range of selected days
               this.days_of_the_month
                 .toArray()
                 .slice(index_of_the_first_day, index_of_the_last_day + 1)
-                .forEach(item => {
-                  this.renderer.addClass(item.nativeElement, "selected");
+                .forEach((item, index, array) => {
+                  if (index === array.length - 1 && event.count == 2) {
+                    this.renderer.removeClass(item.nativeElement, 'selected');
+                  }
+                  this.renderer.addClass(item.nativeElement, index == 0 ? 'start' : index === array.length - 1 && event.count == 2 ? 'end' : "selected");
                 });
             } else {
               this.days_of_the_month.toArray().forEach(item => {
-                if (/selected/.test(item.nativeElement.classList.value)) {
-                  this.renderer.removeClass(item.nativeElement, "selected");
-                }
+                this.renderer.removeClass(item.nativeElement, "selected");
+                this.renderer.removeClass(item.nativeElement, "start");
+                this.renderer.removeClass(item.nativeElement, "end");
               })
             }
           }
